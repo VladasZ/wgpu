@@ -95,7 +95,7 @@ itertools = { version = "0.10.5" }
 ktx2 = "0.3"
 libc = "0.2"
 # libloading 0.8 switches from `winapi` to `windows-sys`; permit either
-libloading = ">=0.7, <0.9"
+libloading = "0.8.5"
 libtest-mimic = "0.6"
 log = "0.4"
 nanorand = { version = "0.7", default-features = false, features = ["wyrand"] }
@@ -158,7 +158,7 @@ hassle-rs = "0.11.0"
 # Gles dependencies
 khronos-egl = "6"
 glow = "0.13.1"
-glutin = "0.29.1"
+glutin = "0.32.0"
 
 # wasm32 dependencies
 console_error_panic_hook = "0.1.7"
