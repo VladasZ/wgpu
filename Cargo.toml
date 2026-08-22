@@ -1,59 +1,27 @@
 [workspace]
 resolver = "2"
 members = [
-    "cts_runner",
-    "deno_webgpu",
-
-    # default members
-    "benches",
-    "examples/features",
-    "examples/standalone/*",
-    "examples/bug-repro/*",
-    "lock-analyzer",
-    "naga-cli",
-    "naga-test",
     "naga-types",
     "naga",
-    "naga/fuzz",
-    "naga/hlsl-snapshots",
-    "naga/xtask",
-    "player",
-    "tests",
     "wgpu-core",
     "wgpu-core/platform-deps/*",
     "wgpu-hal",
-    "wgpu-info",
     "wgpu-macros",
     "wgpu-naga-bridge",
     "wgpu-types",
     "wgpu",
-    "xtask",
 ]
 exclude = []
 default-members = [
-    "benches",
-    "examples/features",
-    "examples/standalone/*",
-    "examples/bug-repro/*",
-    "lock-analyzer",
-    "naga-cli",
-    "naga-test",
     "naga-types",
     "naga",
-    "naga/fuzz",
-    "naga/hlsl-snapshots",
-    "naga/xtask",
-    "player",
-    "tests",
     "wgpu-core",
     "wgpu-core/platform-deps/*",
     "wgpu-hal",
-    "wgpu-info",
     "wgpu-macros",
     "wgpu-naga-bridge",
     "wgpu-types",
     "wgpu",
-    "xtask",
 ]
 
 # NOTE: many packages have non-inherited [lints] sections (Cargo does not support combining
@@ -72,7 +40,7 @@ rust-version = "1.93"
 keywords = ["graphics"]
 license = "MIT OR Apache-2.0"
 homepage = "https://wgpu.rs/"
-repository = "https://github.com/gfx-rs/wgpu"
+repository = "https://github.com/VladasZ/wgpu"
 version = "30.0.0"
 authors = ["gfx-rs developers"]
 
@@ -80,7 +48,7 @@ authors = ["gfx-rs developers"]
 naga = { version = "30.0.0", path = "./naga" }
 naga-test = { path = "./naga-test" }
 naga-types = { version = "30.0.0", path = "./naga-types" }
-wgpu = { version = "30.0.0", path = "./wgpu", default-features = false, features = [
+wgpu = { package = "hilen-wgpu", version = "30.0.0", path = "./wgpu", default-features = false, features = [
     "std",
     "serde",
     "wgsl",
@@ -92,8 +60,8 @@ wgpu = { version = "30.0.0", path = "./wgpu", default-features = false, features
     "angle",
     "static-dxc",
 ] }
-wgpu-core = { version = "30.0.0", path = "./wgpu-core" }
-wgpu-hal = { version = "30.0.0", path = "./wgpu-hal" }
+wgpu-core = { package = "hilen-wgpu-core", version = "30.0.0", path = "./wgpu-core" }
+wgpu-hal = { package = "hilen-wgpu-hal", version = "30.0.0", path = "./wgpu-hal" }
 wgpu-macros = { version = "30.0.0", path = "./wgpu-macros" }
 wgpu-naga-bridge = { version = "30.0.0", path = "./wgpu-naga-bridge" }
 wgpu-test = { version = "30.0.0", path = "./tests" }
@@ -104,10 +72,10 @@ wgpu-types = { version = "30.0.0", path = "./wgpu-types", default-features = fal
 # are allowed through though.
 hlsl-snapshots = { path = "naga/hlsl-snapshots" }
 
-wgpu-core-deps-windows-linux-android = { version = "30.0.0", path = "./wgpu-core/platform-deps/windows-linux-android" }
-wgpu-core-deps-apple = { version = "30.0.0", path = "./wgpu-core/platform-deps/apple" }
-wgpu-core-deps-wasm = { version = "30.0.0", path = "./wgpu-core/platform-deps/wasm" }
-wgpu-core-deps-emscripten = { version = "30.0.0", path = "./wgpu-core/platform-deps/emscripten" }
+wgpu-core-deps-windows-linux-android = { package = "hilen-wgpu-core-deps-windows-linux-android", version = "30.0.0", path = "./wgpu-core/platform-deps/windows-linux-android" }
+wgpu-core-deps-apple = { package = "hilen-wgpu-core-deps-apple", version = "30.0.0", path = "./wgpu-core/platform-deps/apple" }
+wgpu-core-deps-wasm = { package = "hilen-wgpu-core-deps-wasm", version = "30.0.0", path = "./wgpu-core/platform-deps/wasm" }
+wgpu-core-deps-emscripten = { package = "hilen-wgpu-core-deps-emscripten", version = "30.0.0", path = "./wgpu-core/platform-deps/emscripten" }
 
 anyhow = { version = "1.0.87", default-features = false }
 approx = "0.5"
@@ -329,7 +297,6 @@ ndk-sys = "0.6"
 
 # These overrides allow our examples to explicitly depend on release crates
 [patch.crates-io]
-wgpu = { path = "./wgpu" }
 
 env_logger = { version = "0.11", git = "https://github.com/rust-cli/env_logger.git", rev = "d550741" }
 libtest-mimic = { version = "0.8", git = "https://github.com/cwfitzgerald/libtest-mimic.git", rev = "9979b3c" }
