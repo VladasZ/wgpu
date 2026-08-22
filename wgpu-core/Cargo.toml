@@ -1,5 +1,5 @@
 [package]
-name = "wgpu-core"
+name = "hilen-wgpu-core"
 version.workspace = true
 authors.workspace = true
 edition.workspace = true
