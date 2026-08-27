@@ -775,7 +775,7 @@ checksum = "fc0fef456e4baa96da950455cd02c081ca953b141298e41db3fc7e36b1da849c"
 
 [[package]]
 name = "hilen-wgpu"
-version = "30.0.0"
+version = "30.0.1"
 dependencies = [
  "arrayvec",
  "bitflags 2.13.0",
@@ -803,7 +803,7 @@ dependencies = [
 
 [[package]]
 name = "hilen-wgpu-core"
-version = "30.0.0"
+version = "30.0.1"
 dependencies = [
  "arrayvec",
  "bit-set",
@@ -839,35 +839,35 @@ dependencies = [
 
 [[package]]
 name = "hilen-wgpu-core-deps-apple"
-version = "30.0.0"
+version = "30.0.1"
 dependencies = [
  "hilen-wgpu-hal",
 ]
 
 [[package]]
 name = "hilen-wgpu-core-deps-emscripten"
-version = "30.0.0"
+version = "30.0.1"
 dependencies = [
  "hilen-wgpu-hal",
 ]
 
 [[package]]
 name = "hilen-wgpu-core-deps-wasm"
-version = "30.0.0"
+version = "30.0.1"
 dependencies = [
  "hilen-wgpu-hal",
 ]
 
 [[package]]
 name = "hilen-wgpu-core-deps-windows-linux-android"
-version = "30.0.0"
+version = "30.0.1"
 dependencies = [
  "hilen-wgpu-hal",
 ]
 
 [[package]]
 name = "hilen-wgpu-hal"
-version = "30.0.0"
+version = "30.0.1"
 dependencies = [
  "android_system_properties",
  "arrayvec",
@@ -928,7 +928,7 @@ dependencies = [
 
 [[package]]
 name = "hlsl-snapshots"
-version = "30.0.0"
+version = "30.0.1"
 dependencies = [
  "anyhow",
  "nanoserde",
@@ -1185,7 +1185,7 @@ checksum = "add0ac067452ff1aca8c5002111bd6b1c895baee6e45fcbc44e0193aea17be56"
 
 [[package]]
 name = "naga"
-version = "30.0.0"
+version = "30.0.1"
 dependencies = [
  "arbitrary",
  "arrayvec",
@@ -1223,7 +1223,7 @@ dependencies = [
 
 [[package]]
 name = "naga-test"
-version = "30.0.0"
+version = "30.0.1"
 dependencies = [
  "bitflags 2.13.0",
  "naga",
@@ -1236,7 +1236,7 @@ dependencies = [
 
 [[package]]
 name = "naga-types"
-version = "30.0.0"
+version = "30.0.1"
 dependencies = [
  "arbitrary",
  "hashbrown 0.17.1",
@@ -2570,7 +2570,7 @@ dependencies = [
 
 [[package]]
 name = "wgpu-macros"
-version = "30.0.0"
+version = "30.0.1"
 dependencies = [
  "heck",
  "quote",
@@ -2579,7 +2579,7 @@ dependencies = [
 
 [[package]]
 name = "wgpu-naga-bridge"
-version = "30.0.0"
+version = "30.0.1"
 dependencies = [
  "naga",
  "wgpu-types",
@@ -2587,7 +2587,7 @@ dependencies = [
 
 [[package]]
 name = "wgpu-types"
-version = "30.0.0"
+version = "30.0.1"
 dependencies = [
  "bitflags 2.13.0",
  "bytemuck",

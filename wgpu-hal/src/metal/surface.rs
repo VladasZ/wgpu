@@ -15,6 +15,46 @@ use parking_lot::{Mutex, RwLock};
 
 use super::OsFeatures;
 
+/// The `CGColorSpace` name a `CAMetalLayer` gets for `color_space`.
+///
+/// Every color space maps to an explicit name. A `None` (nil) layer colorspace
+/// would disable color matching entirely — the layer bytes would go to the
+/// panel raw, so sRGB content oversaturates on a wide gamut display. Tagging
+/// the layer lets the OS match the content into the display space, the same
+/// thing it does for browser output.
+fn layer_colorspace_name(color_space: wgt::SurfaceColorSpace) -> Option<&'static CFString> {
+    match color_space {
+        wgt::SurfaceColorSpace::Auto => {
+            unreachable!("wgpu-core resolves `Auto` before configuring the surface")
+        }
+        wgt::SurfaceColorSpace::Srgb => Some(unsafe { objc2_core_graphics::kCGColorSpaceSRGB }),
+        wgt::SurfaceColorSpace::ExtendedSrgbLinear => {
+            Some(unsafe { objc2_core_graphics::kCGColorSpaceExtendedLinearSRGB })
+        }
+        wgt::SurfaceColorSpace::ExtendedSrgb => {
+            Some(unsafe { objc2_core_graphics::kCGColorSpaceExtendedSRGB })
+        }
+        wgt::SurfaceColorSpace::ExtendedDisplayP3 => {
+            Some(unsafe { objc2_core_graphics::kCGColorSpaceExtendedDisplayP3 })
+        }
+        wgt::SurfaceColorSpace::DisplayP3 => {
+            Some(unsafe { objc2_core_graphics::kCGColorSpaceDisplayP3 })
+        }
+        wgt::SurfaceColorSpace::Bt2100Pq | wgt::SurfaceColorSpace::Bt2100Hlg => {
+            // The ITUR_2100 color space constants require macOS 11.0/iOS 14.0;
+            // `surface_capabilities` only reports BT.2100 PQ/HLG on those OS versions.
+            if !available!(macos = 11.0, ios = 14.0, tvos = 14.0, visionos = 1.0) {
+                unreachable!("BT.2100 PQ/HLG color spaces are only reported on macOS 11.0+/iOS 14.0+/tvOS 14.0+");
+            }
+            Some(if color_space == wgt::SurfaceColorSpace::Bt2100Pq {
+                unsafe { objc2_core_graphics::kCGColorSpaceITUR_2100_PQ }
+            } else {
+                unsafe { objc2_core_graphics::kCGColorSpaceITUR_2100_HLG }
+            })
+        }
+    }
+}
+
 /// Walks up from `start` to the `NSWindow` hosting this layer: the first ancestor
 /// layer with a delegate is the backing `NSView`, and we return its `window`.
 /// `None` if no ancestor has a delegate.
@@ -253,37 +293,7 @@ impl crate::Surface for super::Surface {
             }
         }
 
-        let colorspace_name: Option<&'static CFString> = match config.color_space {
-            wgt::SurfaceColorSpace::Auto => {
-                unreachable!("wgpu-core resolves `Auto` before configuring the surface")
-            }
-            // Reset to the layer's default, which treats contents as sRGB.
-            wgt::SurfaceColorSpace::Srgb => None,
-            wgt::SurfaceColorSpace::ExtendedSrgbLinear => {
-                Some(unsafe { objc2_core_graphics::kCGColorSpaceExtendedLinearSRGB })
-            }
-            wgt::SurfaceColorSpace::ExtendedSrgb => {
-                Some(unsafe { objc2_core_graphics::kCGColorSpaceExtendedSRGB })
-            }
-            wgt::SurfaceColorSpace::ExtendedDisplayP3 => {
-                Some(unsafe { objc2_core_graphics::kCGColorSpaceExtendedDisplayP3 })
-            }
-            wgt::SurfaceColorSpace::DisplayP3 => {
-                Some(unsafe { objc2_core_graphics::kCGColorSpaceDisplayP3 })
-            }
-            wgt::SurfaceColorSpace::Bt2100Pq | wgt::SurfaceColorSpace::Bt2100Hlg => {
-                // The ITUR_2100 color space constants require macOS 11.0/iOS 14.0;
-                // `surface_capabilities` only reports BT.2100 PQ/HLG on those OS versions.
-                if !available!(macos = 11.0, ios = 14.0, tvos = 14.0, visionos = 1.0) {
-                    unreachable!("BT.2100 PQ/HLG color spaces are only reported on macOS 11.0+/iOS 14.0+/tvOS 14.0+");
-                }
-                Some(if config.color_space == wgt::SurfaceColorSpace::Bt2100Pq {
-                    unsafe { objc2_core_graphics::kCGColorSpaceITUR_2100_PQ }
-                } else {
-                    unsafe { objc2_core_graphics::kCGColorSpaceITUR_2100_HLG }
-                })
-            }
-        };
+        let colorspace_name = layer_colorspace_name(config.color_space);
         let colorspace = colorspace_name.and_then(|name| CGColorSpace::with_name(Some(name)));
         render_layer.setColorspace(colorspace.as_deref());
 
@@ -367,4 +377,31 @@ impl crate::Surface for super::Surface {
     }
 
     unsafe fn discard_texture(&self, _texture: super::SurfaceTexture) {}
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // Regression: `Srgb` used to map to a nil layer colorspace, which
+    // disables color matching and oversaturates sRGB content on wide
+    // gamut displays. Every SDR color space must resolve to a real
+    // CGColorSpace so the OS color matches the layer.
+    #[test]
+    fn sdr_color_spaces_tag_the_layer() {
+        for color_space in [
+            wgt::SurfaceColorSpace::Srgb,
+            wgt::SurfaceColorSpace::ExtendedSrgbLinear,
+            wgt::SurfaceColorSpace::ExtendedSrgb,
+            wgt::SurfaceColorSpace::ExtendedDisplayP3,
+            wgt::SurfaceColorSpace::DisplayP3,
+        ] {
+            let name = layer_colorspace_name(color_space)
+                .unwrap_or_else(|| panic!("{color_space:?} must tag the layer"));
+            assert!(
+                CGColorSpace::with_name(Some(name)).is_some(),
+                "{color_space:?} name must resolve to a CGColorSpace"
+            );
+        }
+    }
 }
