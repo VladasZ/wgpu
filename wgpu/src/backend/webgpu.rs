@@ -1004,13 +1004,21 @@ fn future_request_adapter(
 ) -> Result<dispatch::DispatchAdapter, wgt::RequestAdapterError> {
     result
         .map_err(|_| request_adapter_null_error(requested_backends))
-        .and_then(|adapter| match adapter.into_option() {
-            Some(adapter) => Ok(WebAdapter {
-                inner: adapter,
+        .and_then(|adapter| {
+            // requestAdapter resolves with null when the browser has no
+            // adapter, which WebKit does on the iOS simulator and in
+            // Lockdown mode. JsOption treats only undefined as absent, so
+            // null would pass through as a live adapter and the first
+            // property read on it throws a TypeError.
+            let value: JsValue = adapter.unchecked_into();
+            if value.is_null() || value.is_undefined() {
+                return Err(request_adapter_null_error(requested_backends));
+            }
+            Ok(WebAdapter {
+                inner: value.unchecked_into(),
                 ident: crate::cmp::Identifier::create(),
             }
-            .into()),
-            None => Err(request_adapter_null_error(requested_backends)),
+            .into())
         })
 }
 
